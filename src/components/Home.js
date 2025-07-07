@@ -7,22 +7,26 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Fetch all contacts
   const getContacts = async () => {
     try {
       const res = await axios.get("http://localhost:5000/contacts");
       setContacts(res.data);
       setLoading(false);
     } catch (err) {
+      console.error("Error fetching contacts:", err.message);
       setError("Failed to fetch contacts. Please try again.");
       setLoading(false);
     }
   };
 
+  // Delete contact and refresh list
   const deleteContact = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/contacts/${id}`);
       getContacts();
     } catch (err) {
+      console.error("Error deleting contact:", err.message);
       setError("Failed to delete contact.");
     }
   };
@@ -35,161 +39,117 @@ function Home() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundImage:
-          "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/bg.jpg')",
+        backgroundImage: "url('/bg.jpg')", // Use your bg.jpg from public folder
         backgroundSize: "cover",
         backgroundPosition: "center",
         padding: "40px 20px",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        fontFamily: "'Poppins', sans-serif",
-        color: "#fff",
       }}
     >
       <div
         style={{
-          maxWidth: "700px",
+          maxWidth: "600px",
           width: "100%",
-          background: "rgba(255, 255, 255, 0.12)",
-          borderRadius: "20px",
-          padding: "35px 30px",
+          background: "rgba(255, 255, 255, 0.15)",
+          borderRadius: "16px",
+          padding: "30px 25px",
           boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          boxSizing: "border-box",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)", // For Safari
+          border: "1px solid rgba(255, 255, 255, 0.18)",
+          color: "#222",
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
         }}
       >
-        <h2
-          style={{
-            textAlign: "center",
-            marginBottom: "35px",
-            fontWeight: "700",
-            fontSize: "2rem",
-            letterSpacing: "1.5px",
-          }}
-        >
+        <h2 style={{ textAlign: "center", marginBottom: "30px", color: "#fff" }}>
           📇 All Contacts
         </h2>
 
-        <Link to="/add" style={{ display: "block", textAlign: "center" }}>
+        <Link to="/add">
           <button
             style={{
-              backgroundColor: "#4e8cff",
+              backgroundColor: "#007BFF",
               color: "white",
-              padding: "12px 28px",
+              padding: "10px 20px",
               border: "none",
-              borderRadius: "30px",
+              borderRadius: "8px",
               cursor: "pointer",
+              marginBottom: "25px",
+              boxShadow: "0 3px 8px rgba(0,123,255,0.5)",
               fontWeight: "600",
               fontSize: "16px",
-              boxShadow: "0 4px 15px rgba(78,140,255,0.4)",
-              transition: "all 0.3s ease",
+              transition: "background-color 0.3s",
             }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = "#3869e9";
-              e.target.style.boxShadow = "0 6px 20px rgba(56,105,233,0.6)";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "#4e8cff";
-              e.target.style.boxShadow = "0 4px 15px rgba(78,140,255,0.4)";
-            }}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = "#0056b3")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "#007BFF")}
           >
-            + Add New Contact
+            Add New Contact
           </button>
         </Link>
 
-        {loading && (
-          <p style={{ textAlign: "center", marginTop: "25px", fontSize: "1.2rem" }}>
-            Loading contacts...
-          </p>
-        )}
+        {loading && <p style={{ textAlign: "center", color: "#fff" }}>Loading contacts...</p>}
         {error && (
           <p
             style={{
-              textAlign: "center",
-              marginTop: "25px",
               color: "#ff6b6b",
+              textAlign: "center",
+              marginBottom: "20px",
               fontWeight: "600",
-              fontSize: "1.1rem",
             }}
           >
             {error}
           </p>
         )}
 
-        <ul style={{ listStyle: "none", padding: 0, marginTop: "25px" }}>
+        <ul style={{ listStyle: "none", padding: 0 }}>
           {contacts.map((contact) => (
             <li
               key={contact._id}
               style={{
-                marginBottom: "20px",
-                padding: "20px 25px",
-                borderRadius: "15px",
-                background: "rgba(255, 255, 255, 0.2)",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                marginBottom: "18px",
+                padding: "15px 20px",
+                borderRadius: "10px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                backgroundColor: "rgba(255,255,255,0.25)",
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                transition: "transform 0.3s ease",
-                cursor: "default",
+                flexDirection: "column",
+                gap: "6px",
+                fontSize: "16px",
+                color: "#222",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <strong
-                  style={{
-                    fontSize: "1.25rem",
-                    display: "block",
-                    marginBottom: "6px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {contact.firstName} {contact.lastName}
-                </strong>
-                <div
-                  style={{
-                    fontSize: "0.9rem",
-                    opacity: 0.85,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  📧{" "}
-                  <a
-                    href={`mailto:${contact.email}`}
-                    style={{ color: "#a0c8ff", textDecoration: "underline" }}
-                  >
-                    {contact.email}
-                  </a>{" "}
-                  | 📞 {contact.phone}
-                </div>
-              </div>
+              <strong style={{ fontSize: "18px" }}>
+                {contact.firstName} {contact.lastName}
+              </strong>
 
-              <div style={{ marginLeft: "20px", display: "flex", gap: "12px" }}>
+              <span>
+                📧{" "}
+                <a href={`mailto:${contact.email}`} style={{ color: "#007BFF" }}>
+                  {contact.email}
+                </a>{" "}
+                | 📞 {contact.phone}
+              </span>
+
+              <div style={{ marginTop: "10px" }}>
                 <Link to={`/edit/${contact._id}`}>
                   <button
                     style={{
-                      backgroundColor: "#28a745",
+                      marginRight: "12px",
+                      padding: "6px 14px",
+                      borderRadius: "6px",
                       border: "none",
-                      borderRadius: "8px",
-                      padding: "8px 16px",
+                      backgroundColor: "#28a745",
                       color: "white",
                       cursor: "pointer",
                       fontWeight: "600",
-                      fontSize: "14px",
-                      transition: "background-color 0.3s ease",
+                      transition: "background-color 0.3s",
                     }}
                     onMouseEnter={(e) => (e.target.style.backgroundColor = "#1e7e34")}
                     onMouseLeave={(e) => (e.target.style.backgroundColor = "#28a745")}
-                    aria-label={`Edit contact ${contact.firstName} ${contact.lastName}`}
                   >
-                    ✏️ Edit
+                    Edit
                   </button>
                 </Link>
 
@@ -204,21 +164,19 @@ function Home() {
                     }
                   }}
                   style={{
-                    backgroundColor: "#dc3545",
+                    padding: "6px 14px",
+                    borderRadius: "6px",
                     border: "none",
-                    borderRadius: "8px",
-                    padding: "8px 16px",
+                    backgroundColor: "#dc3545",
                     color: "white",
                     cursor: "pointer",
                     fontWeight: "600",
-                    fontSize: "14px",
-                    transition: "background-color 0.3s ease",
+                    transition: "background-color 0.3s",
                   }}
                   onMouseEnter={(e) => (e.target.style.backgroundColor = "#a71d2a")}
                   onMouseLeave={(e) => (e.target.style.backgroundColor = "#dc3545")}
-                  aria-label={`Delete contact ${contact.firstName} ${contact.lastName}`}
                 >
-                  🗑️ Delete
+                  Delete
                 </button>
               </div>
             </li>
