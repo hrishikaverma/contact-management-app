@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 function AddContact() {
   const navigate = useNavigate();
@@ -17,9 +17,21 @@ function AddContact() {
   } = useForm();
 
   const onSubmit = async (data) => {
+    // Trim all fields
+    const trimmedData = {};
+    for (let key in data) {
+      trimmedData[key] = data[key].trim();
+    }
+
+    // Check for whitespace-only name fields
+    if (!trimmedData.firstName || !trimmedData.lastName) {
+      toast.error("First Name and Last Name cannot be empty or just spaces.");
+      return;
+    }
+
     try {
       setLoading(true);
-      await axios.post("http://localhost:5000/contacts", data);
+      await axios.post("http://localhost:5000/contacts", trimmedData);
       toast.success("✅ Contact added successfully!");
       reset();
       setTimeout(() => {
@@ -42,30 +54,96 @@ function AddContact() {
       <div style={styles.formBox}>
         <h2 style={styles.heading}>📇 Add Contact</h2>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          {[
-            { label: "First Name", name: "firstName", required: true },
-            { label: "Last Name", name: "lastName", required: true },
-            { label: "Address", name: "address", required: false },
-          ].map((field) => (
-            <div key={field.name} style={{ marginBottom: "20px" }}>
-              <label htmlFor={field.name} style={styles.label}>
-                {field.label}
-                {field.required && <span style={{ color: "#ff6b6b" }}> *</span>}
-              </label>
-              <input
-                id={field.name}
-                placeholder={`Enter ${field.label.toLowerCase()}`}
-                {...register(field.name, { required: field.required })}
-                style={{
-                  ...styles.input,
-                  borderColor: errors[field.name] ? "red" : "#ccc",
-                }}
-              />
-              {errors[field.name] && (
-                <p style={styles.errorText}>This field is required</p>
-              )}
-            </div>
-          ))}
+          {/* First Name */}
+          <div style={{ marginBottom: "20px" }}>
+            <label htmlFor="firstName" style={styles.label}>
+              First Name<span style={{ color: "#ff6b6b" }}> *</span>
+            </label>
+            <input
+              id="firstName"
+              placeholder="Enter first name"
+              {...register("firstName", {
+                required: "First name is required",
+                minLength: {
+                  value: 2,
+                  message: "Minimum 2 characters required",
+                },
+                maxLength: {
+                  value: 30,
+                  message: "Maximum 30 characters allowed",
+                },
+                pattern: {
+                  value: /^[A-Za-z\s]+$/,
+                  message: "Only letters and spaces allowed",
+                },
+              })}
+              style={{
+                ...styles.input,
+                borderColor: errors.firstName ? "red" : "#ccc",
+              }}
+              disabled={loading}
+            />
+            {errors.firstName && <p style={styles.errorText}>{errors.firstName.message}</p>}
+          </div>
+
+          {/* Last Name */}
+          <div style={{ marginBottom: "20px" }}>
+            <label htmlFor="lastName" style={styles.label}>
+              Last Name<span style={{ color: "#ff6b6b" }}> *</span>
+            </label>
+            <input
+              id="lastName"
+              placeholder="Enter last name"
+              {...register("lastName", {
+                required: "Last name is required",
+                minLength: {
+                  value: 2,
+                  message: "Minimum 2 characters required",
+                },
+                maxLength: {
+                  value: 30,
+                  message: "Maximum 30 characters allowed",
+                },
+                pattern: {
+                  value: /^[A-Za-z\s]+$/,
+                  message: "Only letters and spaces allowed",
+                },
+              })}
+              style={{
+                ...styles.input,
+                borderColor: errors.lastName ? "red" : "#ccc",
+              }}
+              disabled={loading}
+            />
+            {errors.lastName && <p style={styles.errorText}>{errors.lastName.message}</p>}
+          </div>
+
+          {/* Address */}
+          <div style={{ marginBottom: "20px" }}>
+            <label htmlFor="address" style={styles.label}>
+              Address
+            </label>
+            <input
+              id="address"
+              placeholder="Enter address"
+              {...register("address", {
+                maxLength: {
+                  value: 100,
+                  message: "Maximum 100 characters allowed",
+                },
+                pattern: {
+                  value: /^[A-Za-z0-9\s,.'-]{3,}$/,
+                  message: "Invalid address format",
+                },
+              })}
+              style={{
+                ...styles.input,
+                borderColor: errors.address ? "red" : "#ccc",
+              }}
+              disabled={loading}
+            />
+            {errors.address && <p style={styles.errorText}>{errors.address.message}</p>}
+          </div>
 
           {/* Email */}
           <div style={{ marginBottom: "20px" }}>
@@ -77,7 +155,15 @@ function AddContact() {
               type="email"
               placeholder="Enter email"
               {...register("email", {
-                required: true,
+                required: "Email is required",
+                minLength: {
+                  value: 5,
+                  message: "Email too short",
+                },
+                maxLength: {
+                  value: 50,
+                  message: "Email too long",
+                },
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
                   message: "Invalid email format",
@@ -87,10 +173,9 @@ function AddContact() {
                 ...styles.input,
                 borderColor: errors.email ? "red" : "#ccc",
               }}
+              disabled={loading}
             />
-            {errors.email && (
-              <p style={styles.errorText}>{errors.email.message || "Email is required"}</p>
-            )}
+            {errors.email && <p style={styles.errorText}>{errors.email.message}</p>}
           </div>
 
           {/* Phone */}
@@ -102,7 +187,15 @@ function AddContact() {
               id="phone"
               placeholder="e.g. +919876543210"
               {...register("phone", {
-                required: true,
+                required: "Phone number is required",
+                minLength: {
+                  value: 10,
+                  message: "Phone number too short",
+                },
+                maxLength: {
+                  value: 15,
+                  message: "Phone number too long",
+                },
                 pattern: {
                   value: /^\+[1-9]\d{9,14}$/,
                   message: "Phone must start with country code (e.g. +91...)",
@@ -112,10 +205,9 @@ function AddContact() {
                 ...styles.input,
                 borderColor: errors.phone ? "red" : "#ccc",
               }}
+              disabled={loading}
             />
-            {errors.phone && (
-              <p style={styles.errorText}>{errors.phone.message || "Phone is required"}</p>
-            )}
+            {errors.phone && <p style={styles.errorText}>{errors.phone.message}</p>}
           </div>
 
           <button type="submit" style={styles.submitBtn} disabled={loading}>
